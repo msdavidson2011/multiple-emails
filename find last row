@@ -1,0 +1,35 @@
+function onOpen(){
+  var ui = SpreadsheetApp.getUi()
+      ui.createMenu('Send Grade Emails')
+      .addItem('Send Reminder 1', 'sendEmailOne')
+      .addToUi()
+}//closes menu function
+
+
+function sendEmailOne(){
+  var ui = SpreadsheetApp.getUi();
+  var ss = SpreadsheetApp.getActiveSheet(); //SpreadsheetApp.getActiveSheet().getSheetByName()
+  var sel = ss.getActiveCell();
+  var lr = ss.getLastRow();
+  var row = sel.getRow();
+  var range = ss.getRange(row, 1, 1, ss.getLastColumn());
+  var data = range.getValues()[0];    
+  
+  var user = {
+    'name' :data[0],
+    'course' :data[1],
+    'email' :data[2],
+    'sent' :data[3]
+  }//close user
+  
+  strr = user.course;
+  strr=strr.toString().replace(/,/g,'\n');
+  user.course = strr;
+  
+   for(var i=2;i<=lr;i++){
+     var temp = HtmlService.createTemplateFromFile('Grade Email');
+     temp.user = user;
+     var html = temp.evaluate().getContent();
+     MailApp.sendEmail({to:user.email,replyTo:'replay email address',subject:"Grade Columns Not Updated",htmlBody:html})
+   }
+}//close send email one function
